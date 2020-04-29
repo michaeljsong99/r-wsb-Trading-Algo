@@ -23,9 +23,9 @@ def sentiment_helper(text, sentiment_dict):
     try:
         cleaned_text = process_text.clean_text(text)
         # First, calculate the sentiment.
-        sentiment = process_text.sentiment_analyse(cleaned_text)
-        sentiment_dict['positive'] += sentiment['pos']
-        sentiment_dict['negative'] += sentiment['neg']
+        # sentiment = process_text.sentiment_analyse(cleaned_text)
+        # sentiment_dict['positive'] += sentiment['pos']
+        # sentiment_dict['negative'] += sentiment['neg']
         # Now, calculate the bullish/bearish word frequency.
         tokens = process_text.get_final_words(process_text.tokenize_words(cleaned_text))
         for word in tokens.keys():

@@ -3,9 +3,9 @@ import string
 import matplotlib.pyplot as plt
 from nltk import word_tokenize
 from nltk.corpus import stopwords  # Words that don't have much meaning (i.e. "I", "a", "the", etc.)
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+#from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-senti = SentimentIntensityAnalyzer()
+#senti = SentimentIntensityAnalyzer()
 
 stop_words = set(stopwords.words("english"))
 
@@ -41,9 +41,9 @@ def get_final_words(tokens):
     return final_words
 
 # Returns a dictionary with scores: {'neg', 'neu', 'pos', 'compound'}
-def sentiment_analyse(cleaned_text):
-    score = senti.polarity_scores(cleaned_text)
-    return score
+# def sentiment_analyse(cleaned_text):
+#     score = senti.polarity_scores(cleaned_text)
+#     return score
 
 
 # Graph the word by frequency using matplotlib.
