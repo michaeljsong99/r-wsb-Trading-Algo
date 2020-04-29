@@ -3,6 +3,17 @@
 from flask import Flask
 import aws
 from flask_cors import CORS, cross_origin
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+# Schedule a database update every day at 3am.
+sched = BlockingScheduler()
+@sched.scheduled_job('cron', hour=3)
+def update_data():
+    aws.update_tables()
+
+    
+sched.start()
+
 
 app = Flask(__name__)
 cors = CORS(app)

@@ -1,3 +1,4 @@
+APScheduler==3.6.3
 boto3==1.12.46
 botocore==1.15.46
 certifi==2020.4.5.1
@@ -32,6 +33,7 @@ requests==2.23.0
 s3transfer==0.3.3
 six==1.14.0
 tqdm==4.45.0
+tzlocal==2.0.0
 update-checker==0.16
 urllib3==1.25.9
 websocket-client==0.57.0
