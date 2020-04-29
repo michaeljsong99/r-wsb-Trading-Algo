@@ -3,14 +3,15 @@
 from flask import Flask
 import aws
 from flask_cors import CORS, cross_origin
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
-# Schedule a database update every day at 3am.
-sched = BlockingScheduler()
-@sched.scheduled_job('cron', hour=3)
 def update_data():
     aws.update_tables()
 
+# Schedule a database update every day at 3am.
+sched = BackgroundScheduler()
+sched.add_job(update_data, 'cron', hour ='3')
+sched.start()
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -77,4 +78,4 @@ def get_max_wsb():
     return aws.get_max_wsb_data()
 
 
-#sched.start()
+
