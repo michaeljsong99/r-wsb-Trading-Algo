@@ -11,9 +11,6 @@ sched = BlockingScheduler()
 def update_data():
     aws.update_tables()
 
-    
-sched.start()
-
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -79,3 +76,5 @@ def get_ytd_wsb():
 def get_max_wsb():
     return aws.get_max_wsb_data()
 
+
+#sched.start()
