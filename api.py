@@ -4,13 +4,16 @@ from flask import Flask
 import aws
 from flask_cors import CORS, cross_origin
 from apscheduler.schedulers.background import BackgroundScheduler
+import utils
 
 def update_data():
-    aws.update_tables()
+    #aws.update_tables()
+    utils.send_email()
+    print('email sent')
 
 # Schedule a database update every day at 3am.
 sched = BackgroundScheduler()
-sched.add_job(update_data, 'cron', hour ='3')
+sched.add_job(update_data, 'cron', second ='1')
 sched.start()
 
 app = Flask(__name__)

@@ -2,6 +2,10 @@ import pandas_market_calendars as mcal
 import yfinance as yf
 from datetime import datetime, timedelta
 from Reddit import *
+import smtplib
+import os
+
+password = os.environ['PASSWORD']
 
 nyse = mcal.get_calendar('NYSE')
 
@@ -155,3 +159,13 @@ def backtest(wsb_df, spy_df, portfolio_value = 10000):
     backtest_df = pd.DataFrame.from_dict(portfolio_dict, orient='index')
     backtest_df.columns = ['Portfolio Value', 'Net Cash', 'Net Shares', 'Net Profit', 'Backtest Return', 'Action', 'SPY Return']
     return backtest_df
+
+# send emails.
+def send_email():
+    content = 'WSB Data was successfully updated.'
+    mail = smtplib.SMTP('smtp.gmail.com', 587)
+    mail.ehlo()
+    mail.starttls()
+    mail.login('mjysong@gmail.com', password)
+    mail.sendmail('mjysong@gmail.com', 'mjysong@gmail.com', content)
+    mail.close()
