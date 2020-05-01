@@ -77,5 +77,7 @@ def get_ytd_wsb():
 def get_max_wsb():
     return aws.get_max_wsb_data()
 
-
-
+@app.route('/history')
+@cross_origin()
+def get_history():
+    return aws.get_history_data()

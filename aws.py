@@ -166,6 +166,31 @@ def get_backtest_data(table):
     except:
         raise Exception('There was an error with retrieving backtest data from AWS.')
 
+# Returns a dataframe of trade history.
+def get_history():
+    print('Getting backtest data from AWS...')
+    try:
+        pe = "#d, #pv, #ns, #nc, #a, #np"
+        ean = {"#d": "Date",
+               "#pv": "Backtest Return",
+               "#ns": "Net Shares",
+               "#nc": "Net Cash",
+               "#a": "Action",
+               "#np": "Net Profit"}
+        response = max_backtest.scan(
+            ProjectionExpression=pe,
+            ExpressionAttributeNames=ean
+        )
+        df = pd.DataFrame(response['Items'])
+        df.set_index('Date', inplace=True)
+        # Sort by most recent date in first row of dataframe.
+        df.sort_index(axis=0, inplace=True)
+        print('Retrieved historical data successfully.')
+        return df
+    except:
+        raise Exception('There was an error with retrieving historical data from AWS.')
+
+
 
 
 #######################################################################################################
@@ -409,6 +434,10 @@ def get_max_wsb_data():
     df = get_wsb_data()
     return json.dumps(json.loads(df.to_json(orient='index')), indent=2)
 
+def get_history_data():
+    df = get_history()
+    return json.dumps(json.loads(df.to_json(orient='index')), indent=2)
+
 ########################################################################################################
 # Uploading Historical CSV Data
 #######################################################################################################
@@ -433,7 +462,3 @@ def add_historical_spy():
         close = Decimal(str(row['Close']))
 
         add_to_spy_table(date, open, close)
-
-
-
-
