@@ -172,7 +172,7 @@ def get_history():
     try:
         pe = "#d, #pv, #ns, #nc, #a, #np"
         ean = {"#d": "Date",
-               "#pv": "Backtest Return",
+               "#pv": "Portfolio Value",
                "#ns": "Net Shares",
                "#nc": "Net Cash",
                "#a": "Action",
