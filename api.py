@@ -7,14 +7,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import utils
 
 def update_data():
-    #aws.update_tables()
+    aws.update_tables()
     utils.send_email()
     print('email sent')
 
 # Schedule a database update every day at 3am.
 sched = BackgroundScheduler()
 
-@sched.scheduled_job('cron', second=3)
+@sched.scheduled_job('cron', hour=3)
 def scheduled_job():
     update_data()
 
