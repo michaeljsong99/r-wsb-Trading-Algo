@@ -13,8 +13,14 @@ def update_data():
 
 # Schedule a database update every day at 3am.
 sched = BackgroundScheduler()
-sched.add_job(update_data, 'cron', second ='1')
+
+@sched.scheduled_job('cron', hour=3)
+def scheduled_job():
+    update_data()
+
+    
 sched.start()
+
 
 app = Flask(__name__)
 cors = CORS(app)
