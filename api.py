@@ -14,7 +14,7 @@ def update_data():
 # Schedule a database update every day at 6am.
 sched = BackgroundScheduler()
 
-@sched.scheduled_job('cron', hour=6)
+@sched.scheduled_job('cron', hour=7)
 def scheduled_job():
     update_data()
 

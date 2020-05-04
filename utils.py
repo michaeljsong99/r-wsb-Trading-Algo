@@ -7,6 +7,7 @@ import os
 
 password = os.environ['PASSWORD']
 
+
 nyse = mcal.get_calendar('NYSE')
 
 # Determine if a given date is a trading date or not.
