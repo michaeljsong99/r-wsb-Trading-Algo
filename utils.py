@@ -5,8 +5,8 @@ from Reddit import *
 import smtplib
 import os
 
-#password = os.environ['PASSWORD']
-password = 'rADJABOVKID99!'
+password = os.environ['PASSWORD']
+
 
 nyse = mcal.get_calendar('NYSE')
 
