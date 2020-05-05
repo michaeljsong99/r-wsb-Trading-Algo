@@ -1,2 +1,2 @@
 web: gunicorn api:app
-update: python scheduler.py
+clock: python scheduler.py

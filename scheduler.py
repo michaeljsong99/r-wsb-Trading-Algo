@@ -1,16 +1,16 @@
-import aws
-from apscheduler.schedulers.background import BackgroundScheduler
+#import aws
+from apscheduler.schedulers.background import BlockingScheduler
 import utils
 
 def update_data():
-    aws.update_tables()
+    #aws.update_tables()
     utils.send_email()
     print('email sent')
 
-# Schedule a database update every day at 6am.
-sched = BackgroundScheduler()
+# Schedule a database update every day at 3am.
+sched = BlockingScheduler()
 
-@sched.scheduled_job('cron', hour=7)
+@sched.scheduled_job('cron', second=1)
 def scheduled_job():
     update_data()
 
