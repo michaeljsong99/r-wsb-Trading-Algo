@@ -4,11 +4,9 @@ import utils
 from datetime import datetime
 
 def update_data():
-    now = datetime.now()
-    if now.hour == 6 and now.minute < 20:
-        aws.update_tables()
-        utils.send_email()
-        print('email sent')
+    aws.update_tables()
+    utils.send_email()
+    print('email sent')
 
 update_data()
 
