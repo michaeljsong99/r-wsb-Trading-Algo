@@ -10,11 +10,13 @@ def update_data():
         utils.send_email()
         print('email sent')
 
-# Schedule a database update every day at 3am.
-sched = BlockingScheduler()
+update_data()
 
-@sched.scheduled_job('cron', minute = '1, 21, 41')
-def scheduled_job():
-    update_data()
-
-sched.start()
+# # Schedule a database update every day at 3am.
+# sched = BlockingScheduler()
+#
+# @sched.scheduled_job('cron', minute = '1, 21, 41')
+# def scheduled_job():
+#     update_data()
+#
+# sched.start()
