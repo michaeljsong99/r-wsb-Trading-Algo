@@ -6,6 +6,7 @@ import smtplib
 import os
 
 password = os.environ['PASSWORD']
+print('Password is' + password)
 
 
 nyse = mcal.get_calendar('NYSE')
@@ -23,6 +24,10 @@ def is_tomorrow_trading_day(input_date):
     next_day = current_date + timedelta(days=1)
     next_day_as_str = next_day.strftime("%Y-%m-%d")
     return is_trading_day(next_day_as_str)
+
+def get_all_trading_days(start_date = "2019-04-23", end_date = datetime.datetime.now().strftime('%Y-%m-%d')):
+    trading_days = nyse.valid_days(start_date, end_date)
+    return trading_days
 
 # Given a date, get tomorrow's date.
 def tomorrow_date(input_date):
@@ -88,6 +93,23 @@ def get_yesterday_spy_data():
         'Open': open,
         'Close': close
     }
+
+# Gets all SPY data and returns a list of dictionaries for each date.
+def get_all_spy_data():
+    start_date = "2019-04-23"
+    current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    data = yf.download('SPY', start_date, current_date)
+    records = {}
+    for index, row in data.iterrows():
+        date = index.strftime('%Y-%m-%d')
+        open = row['Open']
+        close = row['Close']
+        records[date] = {
+            'Open': open,
+            'Close': close
+        }
+    print(records)
+    return records
 
 # Performs a backtest. Assumes we have a $10,000 portfolio to start, and we are constrained by 1x gross leverage.
 def backtest(wsb_df, spy_df, portfolio_value = 10000):

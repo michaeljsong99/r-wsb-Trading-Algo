@@ -110,6 +110,66 @@ def get_posts_for_time_period(sub, beginning, end=int(datetime.datetime.now().ti
     resp_json = response.json()
     return resp_json['data']
 
+def get_sentiment_for_day(date_str):
+    date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+    beginning_timestamp = int(date.replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
+    end_timestamp = int((date + datetime.timedelta(days=1)).timestamp())
+    print('Pulling WSB sentiment data from ' + date_str)
+    # Get the 25 most commented posts from day_count days ago.
+    data = get_posts_for_time_period("wallstreetbets", beginning_timestamp, end_timestamp)
+
+    titles_sentiment_dict = {'bull': 0, 'bear': 0, 'positive': 0, 'negative': 0}
+    body_sentiment_dict = {'bull': 0, 'bear': 0, 'positive': 0, 'negative': 0}
+    comments_sentiment_dict = {'bull': 0, 'bear': 0, 'positive': 0, 'negative': 0}
+
+    for post in data:
+        submission = reddit.submission(id=post['id'])
+
+        # Get information from the titles.
+        try:
+            title = submission.title
+            sentiment_helper(title, titles_sentiment_dict)
+        except:
+            sys.stderr.write("Title could not be cleaned.\n")
+
+        # Get information from the post.
+        try:
+            body = submission.selftext
+            sentiment_helper(body, body_sentiment_dict)
+        except:
+            sys.stderr.write("Body could not be cleaned.\n")
+
+        # Get information from the comments.
+        try:
+            submission.comments.replace_more(
+                limit=0)  # When set to 0, replace_more will remove all MoreComments.
+            for comment in submission.comments.list():
+                try:
+                    content = comment.body
+                    sentiment_helper(content, comments_sentiment_dict)
+                except:
+                    pass
+        except:
+            sys.stderr.write("Comments could not be cleaned.\n")
+
+        print(comments_sentiment_dict)
+
+        # This is used for retrieving yesterday's sentiment data.
+        bull = comments_sentiment_dict['bull']
+        bear = comments_sentiment_dict['bear']
+        try:
+            bull_bear_ratio = bull/bear
+        except:
+            bull_bear_ratio = 0.0
+        print('Finished pulling WSB data on day ' + date_str)
+        return {
+            'Date': date_str,
+            'Bull Comments': bull,
+            'Bear Comments': bear,
+            'Bull/Bear Ratio': bull_bear_ratio
+        }
+
+
 
 def get_sentiment_for_time_period(period_length_in_days, to_csv=False):
     day_count = period_length_in_days

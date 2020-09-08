@@ -93,6 +93,7 @@ def get_wsb_data(start_date = '2019-04-23', end_date = datetime.datetime.now().s
         ean = {"#d": "Date",
                "#bb": "Bull/Bear Ratio",
                "#10d": "10d EMA Bull/Bear Ratio"}
+        print(wsb_table)
         response = wsb_table.scan(
             FilterExpression = fe,
             ProjectionExpression = pe,
@@ -106,6 +107,56 @@ def get_wsb_data(start_date = '2019-04-23', end_date = datetime.datetime.now().s
         return df
     except:
         raise Exception('There was an error with retrieving WSB data from AWS.')
+
+# Gets all the WSB data from Reddit.
+def get_all_wsb_data():
+    date = datetime.datetime(2019, 4, 24)
+    end_date = datetime.datetime.now()
+    current_wsb_data = get_wsb_data()
+    dates_to_add_data = []
+    trading_days = utils.get_all_trading_days().values
+    trading_day_set = set()
+    for td in trading_days:
+        trading_day_set.add(str(td)[:10])
+    while date <= end_date:
+        cur_date = date.strftime('%Y-%m-%d')
+        prev_date = (date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        if cur_date in trading_day_set:
+            # We need to make sure we have the wsb data for this date.
+            if prev_date not in current_wsb_data.index:
+                dates_to_add_data.append(prev_date)
+        date += datetime.timedelta(days=1)
+    print('There is missing WSB data on ' + str(len(dates_to_add_data)) + ' dates, shown below.')
+    print(dates_to_add_data)
+    documents = {}
+    for date_str in dates_to_add_data:
+        documents[date_str] = utils.get_sentiment_for_day(date_str)
+    # Now, we need to calculate the 10d EMA for all of the missing data points.
+    bull_bear_ratios = current_wsb_data['Bull/Bear Ratio']
+    dates = []
+    values = []
+    for k, v in documents.items():
+        dates.append(k)
+        values.append(v['Bull/Bear Ratio'])
+    data_to_add = pd.Series(data=values, index=dates)
+    bull_bear_ratios = bull_bear_ratios.append(data_to_add)
+    bull_bear_ratios.sort_index(inplace=True)
+    ema_10 = pd.Series.ewm(bull_bear_ratios, span=10).mean()
+    for date, v in documents.items():
+        ten_d_ema = Decimal(str(ema_10.get(key = date)))
+        bull_com = Decimal(str(v['Bull Comments']))
+        bear_com = Decimal(str(v['Bear Comments']))
+        bull_bear_ratio = Decimal(str(v['Bull/Bear Ratio']))
+        add_to_wsb_table(date, bull_com, bear_com, bull_bear_ratio, ten_d_ema)
+    print('Finished updating WSB data.')
+
+
+
+
+
+
+
+
 
 # Returns a dataframe of historical SPY data. Used for backtesting.
 def get_spy_data(start_date = '2019-04-23', end_date = datetime.datetime.now().strftime('%Y-%m-%d')):
@@ -129,6 +180,19 @@ def get_spy_data(start_date = '2019-04-23', end_date = datetime.datetime.now().s
         return df
     except:
         raise Exception('There was an error with retrieving SPY data from AWS.')
+
+def get_all_spy_data():
+    all_spy_data = utils.get_all_spy_data()
+    spy_data_in_db = get_spy_data()
+    dates_updated = []
+    for date, v in all_spy_data.items():
+        if date not in spy_data_in_db.index:
+            dates_updated.append(date)
+            open = Decimal(str(v['Open']))
+            close = Decimal(str(v['Close']))
+            add_to_spy_table(date, open, close)
+    print('Added SPY data on ' + str(len(dates_updated)) + ' dates, shown below:')
+    print(dates_updated)
 
 # Returns all the dates present in a backtest table.
 def get_backtest_dates(table):
@@ -205,7 +269,8 @@ def update_wsb_table():
 
     date_nine_wsb_entries_ago = utils.get_wsb_date_n_entries_ago(9)
     print('Nine entries ago was on: ' + date_nine_wsb_entries_ago)
-    wsb_data = get_wsb_data(start_date=date_nine_wsb_entries_ago)
+    #wsb_data = get_wsb_data(start_date=date_nine_wsb_entries_ago)
+    wsb_data = get_wsb_data()
     print('Retrieved Historical WSB data.')
     print('Analyzing Sentiment figures...')
     sentiment_dict = utils.get_yesterday_wsb_sentiment()
@@ -266,6 +331,34 @@ def update_tables():
         update_backtests()
 
     print('All updates were successful.')
+
+# In the past, there have been cases where PushShift was not able to get reddit data for a few days.
+# In this case, we call the run_full_updates method instead to fill in all the missing days.
+def run_full_updates():
+    is_wsb_update = False
+    is_spy_update = False
+    print('Running full data uodate...')
+    try:
+        print('Updating SPY data...')
+        get_all_spy_data()
+        is_spy_update = True
+    except:
+        raise Exception('SPY database update failed.')
+    try:
+        print('Updating WSB data...')
+        get_all_wsb_data()
+        is_wsb_update = True
+    except:
+        raise Exception('WSB_Sentiment database update failed.')
+
+    # Now update our backtests if there was any change.
+    if is_wsb_update or is_spy_update:
+        update_backtests()
+    print('All updates were successful.')
+
+
+
+
 
 
 #######################################################################################################

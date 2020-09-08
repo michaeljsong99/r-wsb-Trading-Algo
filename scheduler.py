@@ -4,7 +4,8 @@ import utils
 from datetime import datetime
 
 def update_data():
-    aws.update_tables()
+    # aws.update_tables()
+    aws.run_full_updates()
     utils.send_email()
     print('email sent')
 
