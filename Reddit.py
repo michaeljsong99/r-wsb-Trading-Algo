@@ -124,32 +124,19 @@ def get_sentiment_for_day(date_str):
 
     for post in data:
         submission = reddit.submission(id=post['id'])
-
-        # Get information from the titles.
-        try:
-            title = submission.title
-            sentiment_helper(title, titles_sentiment_dict)
-        except:
-            sys.stderr.write("Title could not be cleaned.\n")
-
-        # Get information from the post.
-        try:
-            body = submission.selftext
-            sentiment_helper(body, body_sentiment_dict)
-        except:
-            sys.stderr.write("Body could not be cleaned.\n")
-
         # Get information from the comments.
         try:
             submission.comments.replace_more(
-                limit=0)  # When set to 0, replace_more will remove all MoreComments.
-            for comment in submission.comments.list():
+                limit=0)  # When set to 0, replace_more will remove all MoreComments
+            comment_list = submission.comments.list()
+            for comment in comment_list:
                 try:
                     content = comment.body
                     sentiment_helper(content, comments_sentiment_dict)
                 except:
                     pass
-        except:
+        except Exception as e:
+            sys.stderr.write(e)
             sys.stderr.write("Comments could not be cleaned.\n")
 
         print(comments_sentiment_dict)
